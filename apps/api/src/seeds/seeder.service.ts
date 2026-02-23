@@ -3,7 +3,7 @@ import { DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Organization } from '../modules/organizations/organization.entity';
 import { User } from '../modules/users/user.entity';
-import { RoleType } from '../common/enums/role.enum';
+import { RoleType } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data';
 
 @Injectable()
 export class SeederService {

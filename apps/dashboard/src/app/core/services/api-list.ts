@@ -9,6 +9,7 @@ export class Api {
       VIEW: 'tasks',
       ADD_EDIT: 'tasks',
       DELETE: 'tasks',
+      REORDER: 'tasks/reorder',
     },
     USER: {
       LIST: 'users/assign-list',

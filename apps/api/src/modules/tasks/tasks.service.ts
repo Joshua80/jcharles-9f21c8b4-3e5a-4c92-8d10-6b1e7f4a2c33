@@ -7,10 +7,9 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { User } from '../users/user.entity';
-import { RoleType } from '../../common/enums/role.enum';
+import { RoleType, UserPayload } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data';
 import { CreateTaskDto, UpdateTaskDto, ListTaskDto } from './dto/task.dto';
 import { TaskResponseDto } from './dto/task-response.dto';
-import type { UserPayload } from '../../common/interfaces/user-payload.interface';
 import { AuditService } from '../audit/audit.service';
 
 @Injectable()
@@ -216,5 +215,31 @@ export class TasksService {
     await this.auditService.log(user.userId, 'DELETE_TASK', task.id, 'Task');
 
     return { message: 'Task deleted successfully' };
+  }
+
+  // ------------------------
+  // Reorder Tasks (Drag-and-Drop)
+  // ------------------------
+  async reorder(tasks: Array<{ id: string; position: number }>, user: UserPayload) {
+    // Verify all tasks belong to user's organization
+    const taskIds = tasks.map((t) => t.id);
+    const existingTasks = await this.taskRepository.find({
+      where: { id: taskIds as any, organizationId: user.organizationId },
+    });
+
+    if (existingTasks.length !== taskIds.length) {
+      throw new NotFoundException('One or more tasks not found or access denied');
+    }
+
+    // Update positions
+    const updatePromises = tasks.map(({ id, position }) =>
+      this.taskRepository.update(id, { position }),
+    );
+
+    await Promise.all(updatePromises);
+
+    await this.auditService.log(user.userId, 'REORDER_TASKS', null, 'Task');
+
+    return { message: 'Tasks reordered successfully' };
   }
 }

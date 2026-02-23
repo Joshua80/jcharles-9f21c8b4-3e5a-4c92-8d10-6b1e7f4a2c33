@@ -1,183 +1,280 @@
-<div class="max-w-6xl mx-auto p-4">
-  <div class="flex items-center justify-between mb-6 flex-wrap">
-    <div class="flex gap-3 items-center flex-wrap">
-      <div class="">
-        <div class="">
-          <input
-            class="!bg-bgcolor px-4 py-2 bor border-[1px]"
-            type="search"
-            placeholder="Search Here..."
-            [(ngModel)]="query.search"
-            (ngModelChange)="applySearch($event)"
-          />
-        </div>
+<div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8">
+  <!-- Dashboard Stats & Chart -->
+  @if (totalCount() > 0) {
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+      <div class="lg:col-span-2">
+        <app-dashboard-stats
+          [totalTasks]="totalCount()"
+          [completedTasks]="completedTasks()"
+          [inProgressTasks]="inProgressTasks()"
+        ></app-dashboard-stats>
       </div>
+      <div class="lg:col-span-1">
+        <app-task-chart
+          [totalTasks]="totalCount()"
+          [completedTasks]="completedTasks()"
+          [inProgressTasks]="inProgressTasks()"
+          [todoTasks]="todoTasks()"
+        ></app-task-chart>
+      </div>
+    </div>
+  }
 
-      @if(user() !== 'VIEWER' ){
+  <!-- Header Section -->
+  <div class="mb-8 animate-fade-in">
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">Task Management</h1>
+        <p class="text-gray-600 dark:text-gray-400">Organize and track your tasks efficiently</p>
+      </div>
+      
+      @if(user() !== 'VIEWER') {
       <button
         (click)="addEditTask('')"
         type="button"
-        class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors"
+        class="inline-flex items-center px-6 py-3 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200 transform hover:scale-105 active:scale-95"
+        title="Create new task (Ctrl+N)"
       >
-        <svg
-          class="-ml-1 mr-2 h-5 w-5 text-white"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M12 4v16m8-8H4"
-          />
+        <svg class="-ml-1 mr-2 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        Add Task
+        Create Task
+        <kbd class="ml-2 px-1.5 py-0.5 text-xs font-semibold text-white bg-white bg-opacity-20 border border-white border-opacity-30 rounded">Ctrl+N</kbd>
       </button>
       }
     </div>
+
+    <!-- Search Bar -->
+    <div class="relative max-w-md">
+      <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
+      <input
+        class="block w-full pl-10 pr-20 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+        type="search"
+        placeholder="Search tasks..."
+        [(ngModel)]="query.search"
+        (ngModelChange)="applySearch($event)"
+      />
+      <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+        <kbd class="px-2 py-1 text-xs font-semibold text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded">Ctrl+K</kbd>
+      </div>
+    </div>
   </div>
 
-  <div class="flex flex-col">
-    <div class="overflow-x-auto border border-gray-200 sm:rounded-lg shadow-sm">
-      <table
-        class="min-w-full border border-gray-200 rounded-lg overflow-hidden"
-      >
-        <!-- HEADER -->
-        <thead class="bg-gray-100 text-gray-700 text-sm uppercase">
-          <tr>
-            <th class="px-4 py-3 text-left">No</th>
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <app-loading-spinner message="Loading tasks..."></app-loading-spinner>
+  }
 
+  <!-- Tasks Table -->
+  @if (!isLoading()) {
+  <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden animate-slide-up">
+    <div class="overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <!-- Header -->
+        <thead class="bg-gray-50 dark:bg-gray-900">
+          <tr>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              #
+            </th>
             <th
-              class="px-4 py-3 text-left cursor-pointer select-none"
+              class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider cursor-pointer hover:text-primary-600 dark:hover:text-primary-400 transition-colors"
               (click)="sort('title')"
-              (keydown.enter)="sort('title')"
             >
               <div class="flex items-center gap-2">
                 <span>Title</span>
-                <i
-                  class="w-4 h-4 transition-transform duration-200"
-                  [ngClass]="query.sortOrder === 'ASC' && query.sortBy === 'title'
-                      ? ''
-                      : 'scale-x-[-1]'"
-                ></i>
+                <svg class="w-4 h-4" [class.rotate-180]="query.sortOrder === 'ASC' && query.sortBy === 'title'" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                </svg>
               </div>
             </th>
-
-            <th class="px-4 py-3 text-left">Description</th>
-            <th class="px-4 py-3 text-left">Category</th>
-            <th class="px-4 py-3 text-left">Created By</th>
-            <th class="px-4 py-3 text-left">Created At</th>
-            <th class="px-4 py-3 text-left">Status</th>
-            @if(user() !== 'VIEWER' ){
-            <th class="px-4 py-3 text-center w-56">Actions</th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Description
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Category
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Created By
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Created At
+            </th>
+            <th class="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Status
+            </th>
+            @if(user() !== 'VIEWER') {
+            <th class="px-6 py-4 text-center text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">
+              Actions
+            </th>
             }
           </tr>
         </thead>
 
-        <!-- BODY -->
+        <!-- Body -->
         <tbody
-          class="divide-y divide-gray-200 text-sm text-gray-700"
+          class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700"
           cdkDropList
           [cdkDropListData]="list()"
           (cdkDropListDropped)="drop($event)"
         >
-          @if (list() && list().length > 0) { @for (data of list(); track data)
-          {
-          <tr class="hover:bg-gray-50 transition-colors duration-150" cdkDrag>
-            <td class="px-4 py-3">
-              {{ (query.page - 1) * query.limit + ($index + 1) }}
-            </td>
-
-            <td class="px-4 py-3 capitalize">{{ data?.title || '-' }}</td>
-
-            <td class="px-4 py-3 capitalize">{{ data?.description || '-' }}</td>
-
-            <td class="px-4 py-3 capitalize">{{ data?.category || '-' }}</td>
-            <td class="px-4 py-3 capitalize">
-              {{ data?.createdBy?.username || '-' }}
-            </td>
-            <td class="px-4 py-3 capitalize">
-              {{ (data?.createdBy?.createdAt | date:'dd/MM/yyyy hh:mm') || '-'
-              }}
-            </td>
-
-            <td class="px-4 py-3 capitalize">{{ data?.status || '-' }}</td>
-            @if(user() !== 'VIEWER' ){
-            <td
-              class="px-4 py-3 text-center"
-              (click)="$event.stopPropagation()"
-              (keydown.enter)="$event.stopPropagation()"
+          @if (list() && list().length > 0) {
+            @for (data of list(); track data.id) {
+            <tr 
+              class="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 cursor-move" 
+              cdkDrag
+              [cdkDragDisabled]="user() === 'VIEWER'"
             >
-              <div class="flex items-center justify-center gap-2">
-                <button class="h-8 w-8 p-2" (click)="addEditTask(data?.id)">
-                  <svg
-                    fill="#000000"
-                    version="1.1"
-                    id="Capa_1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                    viewBox="0 0 528.899 528.899"
-                    xml:space="preserve"
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                {{ (query.page - 1) * query.limit + ($index + 1) }}
+              </td>
+
+              <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white">
+                {{ data?.title || '-' }}
+              </td>
+
+              <td class="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-xs truncate">
+                {{ data?.description || '-' }}
+              </td>
+
+              <td class="px-6 py-4 whitespace-nowrap">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-100 text-primary-800 dark:bg-primary-900 dark:text-primary-200">
+                  {{ data?.category || '-' }}
+                </span>
+              </td>
+
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                {{ data?.createdBy?.username || '-' }}
+              </td>
+
+              <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                {{ (data?.createdAt | date:'dd/MM/yyyy HH:mm') || '-' }}
+              </td>
+
+              <td class="px-6 py-4 whitespace-nowrap">
+                @if(data?.status === 'TODO') {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200">
+                    TODO
+                  </span>
+                } @else if(data?.status === 'IN_PROGRESS') {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                    IN PROGRESS
+                  </span>
+                } @else if(data?.status === 'DONE') {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                    DONE
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                    {{ data?.status || '-' }}
+                  </span>
+                }
+              </td>
+
+              @if(user() !== 'VIEWER') {
+              <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+                <div class="flex items-center justify-center gap-2">
+                  <button
+                    (click)="addEditTask(data?.id)"
+                    class="p-2 text-primary-600 dark:text-primary-400 hover:bg-primary-50 dark:hover:bg-primary-900 rounded-lg transition-colors"
+                    title="Edit task"
                   >
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g
-                      id="SVGRepo_tracerCarrier"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></g>
-                    <g id="SVGRepo_iconCarrier">
-                      <g>
-                        <path
-                          d="M328.883,89.125l107.59,107.589l-272.34,272.34L56.604,361.465L328.883,89.125z M518.113,63.177l-47.981-47.981 c-18.543-18.543-48.653-18.543-67.259,0l-45.961,45.961l107.59,107.59l53.611-53.611 C532.495,100.753,532.495,77.559,518.113,63.177z M0.3,512.69c-1.958,8.812,5.998,16.708,14.811,14.565l119.891-29.069 L27.473,390.597L0.3,512.69z"
-                        ></path>
-                      </g>
-                    </g>
-                  </svg>
-                </button>
-                @if(user() === "OWNER" ){
-                <button class="h-8 w-8 p-2" (click)="deleteTask(data?.id)">
-                  <svg
-                    fill="#000000"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  @if(user() === "OWNER") {
+                  <button
+                    (click)="deleteTask(data?.id)"
+                    class="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900 rounded-lg transition-colors"
+                    title="Delete task"
                   >
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g
-                      id="SVGRepo_tracerCarrier"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></g>
-                    <g id="SVGRepo_iconCarrier">
-                      <path
-                        d="M5.755,20.283,4,8H20L18.245,20.283A2,2,0,0,1,16.265,22H7.735A2,2,0,0,1,5.755,20.283ZM21,4H16V3a1,1,0,0,0-1-1H9A1,1,0,0,0,8,3V4H3A1,1,0,0,0,3,6H21a1,1,0,0,0,0-2Z"
-                      ></path>
-                    </g>
-                  </svg></button
-                >}
-                <!-- Action buttons go here -->
-              </div>
-            </td>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                  }
+                </div>
+              </td>
+              }
+            </tr>
             }
-          </tr>
-          } } @if (!list() || list().length === 0) {
-          <tr>
-            <td colspan="6" class="px-4 py-6 text-center text-gray-500">
-              No Data Found
-            </td>
-          </tr>
+          } @else {
+            <tr>
+              <td [attr.colspan]="user() === 'VIEWER' ? 7 : 8" class="px-6 py-16 text-center">
+                <div class="flex flex-col items-center">
+                  <div class="p-4 rounded-full bg-gray-100 dark:bg-gray-800 mb-4">
+                    <svg class="w-12 h-12 text-gray-400 dark:text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                    </svg>
+                  </div>
+                  <p class="text-gray-900 dark:text-white text-lg font-semibold mb-1">No tasks found</p>
+                  <p class="text-gray-500 dark:text-gray-400 text-sm mb-4">
+                    @if (query.search) {
+                      Try adjusting your search criteria
+                    } @else {
+                      Create your first task to get started
+                    }
+                  </p>
+                  @if (user() !== 'VIEWER' && !query.search) {
+                    <button
+                      (click)="addEditTask('')"
+                      type="button"
+                      class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-lg text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 transition-all duration-200"
+                    >
+                      <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Create Your First Task
+                    </button>
+                  }
+                </div>
+              </td>
+            </tr>
           }
         </tbody>
       </table>
     </div>
   </div>
-  @if(list().length > 0) {
-  <app-custom-pagination
-    (changeItem)="changeItemsPerPage($event)"
-    (pageChanged)="pageChange($event)"
-    [currentPage]="query.page"
-    [perPage]="query.limit"
-    [totalCount]="totalItem()"
-  ></app-custom-pagination>
+  }
+
+  <!-- Pagination -->
+  @if(list().length > 0 && !isLoading() && totalItem() > 1) {
+    <div class="mt-6">
+      <app-custom-pagination
+        (changeItem)="changeItemsPerPage($event)"
+        (pageChanged)="pageChange($event)"
+        [currentPage]="query.page"
+        [perPage]="query.limit"
+        [totalCount]="totalItem()"
+      ></app-custom-pagination>
+    </div>
+  }
+
+  <!-- Keyboard Shortcuts Help -->
+  @if (user() !== 'VIEWER') {
+    <div class="mt-8 p-4 bg-gray-50 dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-gray-400 dark:text-gray-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+        </svg>
+        <div>
+          <p class="text-sm font-medium text-gray-900 dark:text-white mb-2">Keyboard Shortcuts</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-gray-600 dark:text-gray-400">
+            <div class="flex items-center gap-2">
+              <kbd class="px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded font-mono">Ctrl+N</kbd>
+              <span>Create new task</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <kbd class="px-2 py-1 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded font-mono">Ctrl+K</kbd>
+              <span>Focus search</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   }
 </div>

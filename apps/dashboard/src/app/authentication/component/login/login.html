@@ -1,82 +1,98 @@
-<div class="flex items-center justify-center h-dvh p-4">
-  <div
-    class="border border-black max-w-[540px] w-full bg-[#DADADA] shadow-[0px_0px_20px_0px_#00000026]"
-  >
-    <h1 class="text-lg text-left bg-white m-0 md:px-3.5 p-2 md:py-3">Login</h1>
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary-50 via-white to-primary-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 p-4 transition-colors duration-200">
+  <!-- Theme Toggle - Top Right -->
+  <div class="absolute top-4 right-4">
+    <app-theme-toggle></app-theme-toggle>
+  </div>
 
-    <div
-      class="py-2.5 px-2.5 md:px-8 max-h-[calc(100dvh-82px)] overflow-y-auto"
-    >
-      <div class="text-center mb-3 md:mb-6 last:mb-0">
-        <img
-          alt="logo"
-          class="w-full max-w-[66px] md:max-w-[88px] max-h-[81px] mx-auto"
-          src="favicon.ico"
-        />
+  <div class="w-full max-w-md">
+    <!-- Logo/Brand Section -->
+    <div class="text-center mb-8 animate-fade-in">
+      <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 shadow-lg mb-4">
+        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
       </div>
+      <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-2">TaskFlow</h1>
+      <p class="text-gray-600 dark:text-gray-400">Sign in to manage your tasks</p>
+    </div>
 
-      <form id="loginForm" [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-        <div
-          class="form-field flex flex-col md:flex-row md:justify-end md:items-center gap-1 md:gap-2.5 mb-4 last:mb-0"
-        >
-          <label for="email" class="text-base md:text-xl font-semibold"
-            >Email:</label
-          >
-
-          <div class="relative md:max-w-[298px] w-full">
+    <!-- Login Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl border border-gray-200 dark:border-gray-700 p-8 animate-slide-up">
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6">
+        <!-- Email Field -->
+        <div>
+          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Email Address
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207"></path>
+              </svg>
+            </div>
             <input
               id="email"
-              name="email"
-              required
-              type="text"
+              type="email"
               formControlName="email"
+              class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+              placeholder="you@example.com"
+              [class.border-red-500]="loginForm.controls['email'].invalid && (loginForm.controls['email'].dirty || loginForm.controls['email'].touched)"
             />
-
-            @if ( loginForm.controls['email'].invalid &&
-            (loginForm.controls['email'].dirty ||
-            loginForm.controls['email'].touched) ) {
-            <span id="emailError" class="text-red text-xs absolute top-full"
-              >Email is required</span
-            >
-            }
           </div>
+          @if (loginForm.controls['email'].invalid && (loginForm.controls['email'].dirty || loginForm.controls['email'].touched)) {
+            <p class="mt-1 text-sm text-red-600 dark:text-red-400">Email is required</p>
+          }
         </div>
 
-        <div
-          class="form-field flex flex-col md:flex-row md:justify-end md:items-center gap-1 md:gap-2.5 mb-4 last:mb-0"
-        >
-          <label for="password" class="text-base md:text-xl font-semibold"
-            >Password:</label
-          >
-
-          <div class="relative md:max-w-[298px] w-full">
+        <!-- Password Field -->
+        <div>
+          <label for="password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            Password
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+              </svg>
+            </div>
             <input
-              class="col-span-2"
               id="password"
-              name="password"
-              required
-              [autocomplete]="false"
               type="password"
-              aria-autocomplete="none"
               formControlName="password"
+              class="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors"
+              placeholder="••••••••"
+              [class.border-red-500]="loginForm.controls['password'].invalid && (loginForm.controls['password'].dirty || loginForm.controls['password'].touched)"
             />
-
-            @if ( loginForm.controls['password'].invalid &&
-            (loginForm.controls['password'].dirty ||
-            loginForm.controls['password'].touched) ) {
-            <span id="passwordError" class="text-red text-xs absolute top-full"
-              >Password is required</span
-            >
-            }
           </div>
+          @if (loginForm.controls['password'].invalid && (loginForm.controls['password'].dirty || loginForm.controls['password'].touched)) {
+            <p class="mt-1 text-sm text-red-600 dark:text-red-400">Password is required</p>
+          }
         </div>
 
-        <div class="text-center">
-          <button class="site-btn green-border-btn">
-            <span id="submitBtn" type="button">Login</span>
-          </button>
-        </div>
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          [disabled]="isSubmitting || loginForm.invalid"
+          class="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-gradient-to-r from-primary-600 to-primary-500 hover:from-primary-700 hover:to-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98]"
+        >
+          @if (isSubmitting) {
+            <svg class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            Signing in...
+          } @else {
+            Sign in
+          }
+        </button>
       </form>
+
+      <!-- Demo Credentials Hint -->
+      <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+        <p class="text-xs text-center text-gray-500 dark:text-gray-400">
+          Demo: owner@example.com / 123456
+        </p>
+      </div>
     </div>
   </div>
 </div>

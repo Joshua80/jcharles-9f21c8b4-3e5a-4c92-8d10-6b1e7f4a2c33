@@ -1,12 +1,9 @@
 import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { RoleType } from '../../common/enums/role.enum';
-import { CreateTaskDto, UpdateTaskDto, ListTaskDto } from './dto/task.dto';
-import { GetUser } from '../auth/decorators/get-user.decorator';
-import type { UserPayload } from '../../common/interfaces/user-payload.interface';
+import { RolesGuard, Roles, GetUser } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/auth';
+import { RoleType, UserPayload } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data';
+import { CreateTaskDto, UpdateTaskDto, ListTaskDto, ReorderTasksDto } from './dto/task.dto';
 import {
   ApiTags,
   ApiBearerAuth,
@@ -83,5 +80,17 @@ export class TasksController {
   @ApiParam({ name: 'id', description: 'Task UUID', type: String, example: '550e8400-e29b-41d4-a716-446655440000' })
   remove(@Param('id') id: string, @GetUser() user: UserPayload) {
     return this.tasksService.remove(id, user);
+  }
+
+  // ------------------------
+  // Reorder Tasks (Drag-and-Drop)
+  // ------------------------
+  @Post('reorder')
+  @Roles(RoleType.OWNER, RoleType.ADMIN)
+  @ApiOperation({ summary: 'Reorder tasks by updating their positions' })
+  @ApiBody({ type: ReorderTasksDto })
+  @ApiResponse({ status: 200, description: 'Tasks reordered successfully' })
+  reorder(@Body() dto: ReorderTasksDto, @GetUser() user: UserPayload) {
+    return this.tasksService.reorder(dto.tasks, user);
   }
 }

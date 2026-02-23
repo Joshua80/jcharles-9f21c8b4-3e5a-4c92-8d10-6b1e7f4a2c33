@@ -14,7 +14,10 @@
     "skipLibCheck": true,
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
-    "paths": {}
+    "paths": {
+      "@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data": ["libs/data/src/index.ts"],
+      "@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/auth": ["libs/auth/src/index.ts"]
+    }
   },
   "exclude": ["node_modules", "tmp"]
 }

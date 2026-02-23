@@ -9,12 +9,10 @@ import {
 } from 'typeorm';
 import { User } from '../users/user.entity';
 import { Organization } from '../organizations/organization.entity';
+import { TaskStatus } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data';
 
-export enum TaskStatus {
-  TODO = 'TODO',
-  IN_PROGRESS = 'IN_PROGRESS',
-  DONE = 'DONE',
-}
+// Re-export for backward compatibility
+export { TaskStatus };
 
 @Entity()
 export class Task {

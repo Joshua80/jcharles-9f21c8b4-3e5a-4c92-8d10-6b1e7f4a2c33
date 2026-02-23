@@ -1,6 +1,6 @@
-import { IsString, MinLength, IsOptional, IsEnum, IsUUID, IsInt, Min } from 'class-validator';
+import { IsString, MinLength, IsOptional, IsEnum, IsUUID, IsInt, Min, IsArray, ValidateNested } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
-import { TaskStatus } from '../task.entity';
+import { TaskStatus } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
 
@@ -65,4 +65,28 @@ export class ListTaskDto {
   @IsString()
   @IsEnum(['ASC', 'DESC'] as const)
   sortOrder?: 'ASC' | 'DESC';
+}
+
+// DTO for reordering tasks (drag-and-drop)
+class TaskPositionDto {
+  @ApiProperty({ example: '550e8400-e29b-41d4-a716-446655440000', description: 'Task UUID' })
+  @IsUUID()
+  id: string;
+
+  @ApiProperty({ example: 0, description: 'New position index' })
+  @IsInt()
+  @Min(0)
+  position: number;
+}
+
+export class ReorderTasksDto {
+  @ApiProperty({ 
+    example: [{ id: 'task-uuid-1', position: 0 }, { id: 'task-uuid-2', position: 1 }],
+    description: 'Array of task IDs with their new positions',
+    type: [TaskPositionDto],
+  })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => TaskPositionDto)
+  tasks: TaskPositionDto[];
 }

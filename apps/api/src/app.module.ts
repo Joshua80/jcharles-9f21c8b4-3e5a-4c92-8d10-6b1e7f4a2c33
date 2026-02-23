@@ -10,6 +10,7 @@ import { RolesModule } from './modules/roles/roles.module';
 import { OrganizationsModule } from './modules/organizations/organizations.module';
 import { TasksModule } from './modules/tasks/tasks.module';
 import { AuditModule } from './modules/audit/audit.module';
+import { PermissionsModule } from './modules/permissions/permissions.module';
 import { SeederModule } from './seeder/seeder.module';
 
 // Services
@@ -31,6 +32,7 @@ import { AppController } from './app.controller';
     OrganizationsModule,
     TasksModule,
     AuditModule,
+    PermissionsModule,
     SeederModule,
   ],
   controllers: [AppController],

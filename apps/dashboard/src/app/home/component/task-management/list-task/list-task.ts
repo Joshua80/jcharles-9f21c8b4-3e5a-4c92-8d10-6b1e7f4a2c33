@@ -14,6 +14,9 @@ import { CommonConstants } from '../../../../core/constants/common-constants';
 import { Api } from '../../../../core/services/api-list';
 import { ApiService } from '../../../../core/services/api.service';
 import { CustomPaginationComponent } from '../../../../common/custom-pagination/custom-pagination.component';
+import { LoadingSpinnerComponent } from '../../../../common/loading-spinner/loading-spinner.component';
+import { DashboardStatsComponent } from '../../dashboard-stats/dashboard-stats.component';
+import { TaskChartComponent } from '../../../../common/task-chart/task-chart.component';
 import { Router } from '@angular/router';
 @Component({
   selector: 'app-list-task',
@@ -22,6 +25,9 @@ import { Router } from '@angular/router';
     FormsModule,
     DragDropModule,
     CustomPaginationComponent,
+    LoadingSpinnerComponent,
+    DashboardStatsComponent,
+    TaskChartComponent,
   ],
   providers: [TaskService, Api, ApiService, CommonConstants],
   templateUrl: './list-task.html',
@@ -41,17 +47,46 @@ export class ListTask implements OnInit {
   };
   list = signal<any[]>([]);
   totalItem = signal<any>(0);
+  totalCount = signal<number>(0);
+  isLoading = signal<boolean>(false);
   private subject: Subject<string> = new Subject();
   userRole: string | null = this._helper.getLocalStorageData(
     CommonConstants.USER_DATA,
   );
   user = signal('');
+  
+  // Computed stats
+  completedTasks = signal<number>(0);
+  inProgressTasks = signal<number>(0);
+  todoTasks = signal<number>(0);
+
   constructor() {
     this.user?.set(this.userRole ?? '');
     this.searchData();
+    this.setupKeyboardShortcuts();
   }
+  
   ngOnInit(): void {
     this.getList();
+  }
+
+  private setupKeyboardShortcuts(): void {
+    document.addEventListener('keydown', (event: KeyboardEvent) => {
+      // Ctrl/Cmd + K to focus search
+      if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+        event.preventDefault();
+        const searchInput = document.querySelector('input[type="search"]') as HTMLInputElement;
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }
+      
+      // Ctrl/Cmd + N to create new task (if not viewer)
+      if ((event.ctrlKey || event.metaKey) && event.key === 'n' && this.user() !== 'VIEWER') {
+        event.preventDefault();
+        this.addEditTask('');
+      }
+    });
   }
 
   searchData() {
@@ -68,13 +103,28 @@ export class ListTask implements OnInit {
   }
 
   getList() {
-    this._taskService.list(this.query).subscribe((res: any) => {
-      if (res) {
-        this.list.set(res?.data);
-        this.totalItem.set(res.totalPages);
-      } else {
-        this._helper.toast(res?.message, 'error');
-      }
+    this.isLoading.set(true);
+    this._taskService.list(this.query).subscribe({
+      next: (res: any) => {
+        this.isLoading.set(false);
+        if (res) {
+          this.list.set(res?.data || []);
+          this.totalItem.set(res.totalPages || 0);
+          this.totalCount.set(res.total || 0);
+          
+          // Calculate stats from current page (for demo - in production, would fetch all or use aggregation)
+          const tasks = res?.data || [];
+          this.completedTasks.set(tasks.filter((t: any) => t.status === 'DONE').length);
+          this.inProgressTasks.set(tasks.filter((t: any) => t.status === 'IN_PROGRESS').length);
+          this.todoTasks.set(tasks.filter((t: any) => t.status === 'TODO').length);
+        } else {
+          this._helper.toast(res?.message, 'error');
+        }
+      },
+      error: (error: any) => {
+        this.isLoading.set(false);
+        this._helper.toast(error?.message || 'Failed to load tasks', 'error');
+      },
     });
   }
 
@@ -127,6 +177,31 @@ export class ListTask implements OnInit {
   }
 
   drop(event: CdkDragDrop<any[]>) {
+    if (event.previousIndex === event.currentIndex) return;
+    
     moveItemInArray(this.list(), event.previousIndex, event.currentIndex);
+    
+    // Persist the new order to backend
+    const tasks = this.list().map((task, index) => ({
+      id: task.id,
+      position: index,
+    }));
+    
+    this._taskService.reorder({ tasks }).subscribe({
+      next: (res: any) => {
+        if (res) {
+          this._helper.toast('Tasks reordered successfully', 'success');
+        } else {
+          this._helper.toast('Failed to reorder tasks', 'error');
+          // Revert on error
+          this.getList();
+        }
+      },
+      error: (error: any) => {
+        this._helper.toast('Failed to reorder tasks', 'error');
+        // Revert on error
+        this.getList();
+      },
+    });
   }
 }

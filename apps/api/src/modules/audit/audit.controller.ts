@@ -1,11 +1,8 @@
 import { Controller, Get, Query, UseGuards } from '@nestjs/common';
 import { AuditService } from './audit.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { RoleType } from '../../common/enums/role.enum';
-import { GetUser } from '../auth/decorators/get-user.decorator';
-import type { UserPayload } from '../../common/interfaces/user-payload.interface';
+import { RolesGuard, Roles, GetUser } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/auth';
+import { RoleType, UserPayload } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data';
 import { ListAuditDto } from './dto/audit-log.dto';
 import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
@@ -16,9 +13,9 @@ import { ApiTags, ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 export class AuditController {
   constructor(private readonly auditService: AuditService) {}
 
-  @ApiOperation({ summary: 'Get audit logs with pagination and filters' })
+  @ApiOperation({ summary: 'Get audit logs with pagination and filters (Owner and Admin only)' })
   @Get()
-  @Roles(RoleType.OWNER)
+  @Roles(RoleType.OWNER, RoleType.ADMIN)
   async findAll(@GetUser() user: UserPayload, @Query() query: ListAuditDto) {
     const page = query.page ?? 1;
     const limit = query.limit ?? 10;

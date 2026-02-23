@@ -2,10 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterModule, RouterOutlet } from '@angular/router';
 import { CommonConstants } from '../core/constants/common-constants';
 import { HelperService } from '../core/services/helper.service';
+import { ThemeToggleComponent } from '../common/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterOutlet, RouterModule],
+  imports: [RouterOutlet, RouterModule, ThemeToggleComponent],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

@@ -51,4 +51,12 @@ export class TaskService {
   listAssignUser() {
     return this._apiService.get(this._api.API.USER.LIST);
   }
+
+  /**
+   * for reordering tasks (drag-and-drop)
+   * @param data
+   */
+  reorder(data: any) {
+    return this._apiService.post(this._api.API.TASK.REORDER, data);
+  }
 }

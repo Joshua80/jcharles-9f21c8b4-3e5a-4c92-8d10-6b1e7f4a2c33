@@ -12,10 +12,11 @@ import { Router } from '@angular/router';
 import { HelperService } from '../../../core/services/helper.service';
 import { CommonConstants } from '../../../core/constants/common-constants';
 import * as jwt_decode from 'jwt-decode';
+import { ThemeToggleComponent } from '../../../common/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-login',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, ThemeToggleComponent],
   providers: [Api, ApiService, AuthService],
   templateUrl: './login.html',
   styleUrl: './login.scss',

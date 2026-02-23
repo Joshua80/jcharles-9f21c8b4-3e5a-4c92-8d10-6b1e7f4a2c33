@@ -12,10 +12,11 @@ import { HelperService } from '../../../../core/services/helper.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Api } from '../../../../core/services/api-list';
 import { ApiService } from '../../../../core/services/api.service';
+import { LoadingSpinnerComponent } from '../../../../common/loading-spinner/loading-spinner.component';
 
 @Component({
   selector: 'app-add-edit-task',
-  imports: [FormsModule, ReactiveFormsModule, CommonModule],
+  imports: [FormsModule, ReactiveFormsModule, CommonModule, LoadingSpinnerComponent],
   providers: [Api, ApiService, TaskService],
   templateUrl: './add-edit-task.html',
   styleUrl: './add-edit-task.scss',
@@ -32,6 +33,8 @@ export class AddEditTask {
   userList = signal<any[]>([]);
   editMode = '';
   taskId: any;
+  isSubmitting = signal<boolean>(false);
+  isLoading = signal<boolean>(false);
 
   constructor() {
     this.getUserList();
@@ -60,13 +63,22 @@ export class AddEditTask {
   }
 
   getDetails() {
-    this._taskService.view(this.taskId).subscribe((res: any) => {
-      if (res) {
-        this.getFormValue(res);
-      } else {
-        this._helper.toast(res?.message, 'error');
+    this.isLoading.set(true);
+    this._taskService.view(this.taskId).subscribe({
+      next: (res: any) => {
+        this.isLoading.set(false);
+        if (res) {
+          this.getFormValue(res);
+        } else {
+          this._helper.toast(res?.message, 'error');
+          this.goBack();
+        }
+      },
+      error: (error: any) => {
+        this.isLoading.set(false);
+        this._helper.toast(error?.message || 'Failed to load task', 'error');
         this.goBack();
-      }
+      },
     });
   }
 
@@ -93,28 +105,27 @@ export class AddEditTask {
   onSubmit() {
     this.taskForm.markAllAsTouched();
     if (this.taskForm.valid) {
+      this.isSubmitting.set(true);
       const reqData: any = { ...this.taskForm.value };
-      // if (this.editMode == 'Edit') {
-      //   reqData.id = this.taskId;
-      // }
-      this._taskService.addEdit(reqData, this.editMode, this.taskId).subscribe(
-        (res: any) => {
+      this._taskService.addEdit(reqData, this.editMode, this.taskId).subscribe({
+        next: (res: any) => {
+          this.isSubmitting.set(false);
           if (res) {
             if (this.editMode == 'Edit') {
-              this._helper.toast('task updated Successfully!', 'success');
+              this._helper.toast('Task updated successfully!', 'success');
             } else {
-              this._helper.toast('task Added Successfully!', 'success');
+              this._helper.toast('Task created successfully!', 'success');
             }
-
             this.goBack();
           } else {
             this._helper.toast(res.message, 'error');
           }
         },
-        (error: any) => {
-          this._helper.toast(error.message, 'error');
+        error: (error: any) => {
+          this.isSubmitting.set(false);
+          this._helper.toast(error.message || 'Failed to save task', 'error');
         },
-      );
+      });
     }
   }
 

@@ -6,7 +6,7 @@ import {
   CreateDateColumn,
 } from 'typeorm';
 import { Organization } from '../organizations/organization.entity';
-import { RoleType } from '../../common/enums/role.enum';
+import { RoleType } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data';
 
 @Entity()
 export class User {

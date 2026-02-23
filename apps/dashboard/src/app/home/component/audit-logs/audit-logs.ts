@@ -1,9 +1,11 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { CommonConstants } from '../../../core/constants/common-constants';
 import { HelperService } from '../../../core/services/helper.service';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 import { CustomPaginationComponent } from '../../../common/custom-pagination/custom-pagination.component';
+import { LoadingSpinnerComponent } from '../../../common/loading-spinner/loading-spinner.component';
 import { FormsModule } from '@angular/forms';
 import { HomeService } from '../../home.service';
 import { Api } from '../../../core/services/api-list';
@@ -11,12 +13,12 @@ import { ApiService } from '../../../core/services/api.service';
 
 @Component({
   selector: 'app-audit-logs',
-  imports: [CustomPaginationComponent, FormsModule],
+  imports: [CommonModule, CustomPaginationComponent, FormsModule, LoadingSpinnerComponent],
   providers: [Api, ApiService, HomeService],
   templateUrl: './audit-logs.html',
   styleUrl: './audit-logs.scss',
 })
-export class AuditLogs {
+export class AuditLogs implements OnInit {
   private _helper = inject(HelperService);
   private _homeService = inject(HomeService);
   private _router = inject(Router);
@@ -30,6 +32,7 @@ export class AuditLogs {
   };
   list = signal<any[]>([]);
   totalItem = signal<any>(0);
+  isLoading = signal<boolean>(false);
   private subject: Subject<string> = new Subject();
   userRole: string | null = this._helper.getLocalStorageData(
     CommonConstants.USER_DATA,
@@ -57,13 +60,21 @@ export class AuditLogs {
   }
 
   getList() {
-    this._homeService.auditLogs(this.query).subscribe((res: any) => {
-      if (res) {
-        this.list.set(res?.data);
-        this.totalItem.set(res.totalPages);
-      } else {
-        this._helper.toast(res?.message, 'error');
-      }
+    this.isLoading.set(true);
+    this._homeService.auditLogs(this.query).subscribe({
+      next: (res: any) => {
+        this.isLoading.set(false);
+        if (res) {
+          this.list.set(res?.data);
+          this.totalItem.set(res.totalPages);
+        } else {
+          this._helper.toast(res?.message, 'error');
+        }
+      },
+      error: (error: any) => {
+        this.isLoading.set(false);
+        this._helper.toast(error?.message || 'Failed to load audit logs', 'error');
+      },
     });
   }
 

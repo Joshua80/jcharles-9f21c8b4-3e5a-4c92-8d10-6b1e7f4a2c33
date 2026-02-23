@@ -1,9 +1,11 @@
-<div class="pagination">
-  <div class="flex gap-4 items-center">
+<div class="flex flex-col sm:flex-row items-center justify-between gap-4 px-4 py-4 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-sm">
+  <!-- Left Section: Items per page & Total -->
+  <div class="flex items-center gap-4">
     @if (!parentComp) {
-      <div class="custom-select-wrap !text-fs12">
+      <div class="flex items-center gap-2">
+        <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Show:</label>
         <select
-          class="custom-select !align-middle"
+          class="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent cursor-pointer transition-colors"
           [(ngModel)]="perPage"
           (change)="changeItemsPerPage(perPage)"
         >
@@ -11,32 +13,65 @@
             <option [value]="option">{{ option }}</option>
           }
         </select>
-        <i class="icon icon-arrow-down"></i>
       </div>
     }
-    <p class="text-black10 mb-0 text-fs12">
-      Total Records: <span>{{ totalCount }}</span>
+    <p class="text-sm text-gray-600 dark:text-gray-400">
+      Total: <span class="font-semibold text-gray-900 dark:text-white">{{ totalCount }}</span> records
     </p>
   </div>
 
-  <!-- Pagination Nav -->
-  <div class="pagination-nav">
-    <button (click)="previousPage()" [disabled]="currentPage === 1">
-      <i><</i>
+  <!-- Right Section: Pagination Controls -->
+  <div class="flex items-center gap-2">
+    <!-- Previous Button -->
+    <button
+      (click)="previousPage()"
+      [disabled]="currentPage === 1"
+      class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      title="Previous page"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+      </svg>
     </button>
-    @for (page of pages; track page) {
-      <button
-        class="page-number"
-        [class.active]="page === currentPage"
-        [class.dots]="page === '...'"
-        [disabled]="page === '...'"
-        (click)="page !== '...' && goToPage(+page)"
-      >
-        {{ page }}
-      </button>
-    }
-    <button (click)="nextPage()" [disabled]="currentPage === totalPages">
-      <i class="text-[14px] bg-transparent text-black"> > </i>
+
+    <!-- Page Numbers -->
+    <div class="flex items-center gap-1">
+      @for (page of pages; track page) {
+        @if (page === '...') {
+          <span class="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">...</span>
+        } @else {
+          <button
+            class="px-4 py-2 text-sm font-medium rounded-lg transition-colors min-w-[40px]"
+            [class.bg-primary-600]="page === currentPage"
+            [class.text-white]="page === currentPage"
+            [class.bg-white]="page !== currentPage"
+            [class.dark:bg-gray-700]="page !== currentPage"
+            [class.text-gray-700]="page !== currentPage"
+            [class.dark:text-gray-300]="page !== currentPage"
+            [class.border]="page !== currentPage"
+            [class.border-gray-300]="page !== currentPage"
+            [class.dark:border-gray-600]="page !== currentPage"
+            [class.hover:bg-gray-50]="page !== currentPage"
+            [class.dark:hover:bg-gray-600]="page !== currentPage"
+            [class.shadow-sm]="page === currentPage"
+            (click)="goToPage(+page)"
+          >
+            {{ page }}
+          </button>
+        }
+      }
+    </div>
+
+    <!-- Next Button -->
+    <button
+      (click)="nextPage()"
+      [disabled]="currentPage === totalPages"
+      class="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      title="Next page"
+    >
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+      </svg>
     </button>
   </div>
 </div>
