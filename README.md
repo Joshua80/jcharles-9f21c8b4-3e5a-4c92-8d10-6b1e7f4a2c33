@@ -101,9 +101,32 @@ Viewer1: viewer1@example.com / 123456
 
 ### Step 5: Start the Application
 
+#### Option A: Quick Start (Windows) - Recommended
+
+**Double-click `run-project.bat`** or run from command line:
+
+```bash
+run-project.bat
+```
+
+This batch file will:
+- ✅ Check if dependencies are installed (runs `npm install` if needed)
+- ✅ Create `.env` file from sample if missing
+- ✅ Free up ports 3000 and 4200 if they're in use
+- ✅ Start both API and Dashboard servers in separate windows
+- ✅ Display server URLs
+
+**To stop the servers:**
+- Close the server windows, or
+- Run `stop-project.bat` to kill all processes on ports 3000 and 4200
+
+---
+
+#### Option B: Manual Start (All Platforms)
+
 You need **two terminal windows** - one for backend, one for frontend.
 
-#### Terminal 1: Start Backend API
+##### Terminal 1: Start Backend API
 
 ```bash
 npx nx serve api
@@ -120,7 +143,7 @@ npx nx serve api
 - Open browser: `http://localhost:3000`
 - Should see: `{"message":"Task Management API"}`
 
-#### Terminal 2: Start Frontend Dashboard
+##### Terminal 2: Start Frontend Dashboard
 
 ```bash
 npx nx serve dashboard
