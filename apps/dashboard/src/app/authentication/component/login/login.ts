@@ -56,7 +56,6 @@ export class Login implements OnInit {
             JSON.stringify(res.access_token),
           );
           const decoded: any = jwt_decode.jwtDecode(res.access_token);
-          console.log(decoded);
 
           this._helper.setLocalStorageData(
             CommonConstants.USER_DATA,

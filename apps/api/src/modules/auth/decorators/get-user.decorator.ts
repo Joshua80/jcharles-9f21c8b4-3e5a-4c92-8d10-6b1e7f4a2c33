@@ -1,5 +1,5 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
-import type { UserPayload } from '../../../common/interfaces/user-payload.interface';
+import type { UserPayload } from '@shared/data';
 
 /**
  * GetUser decorator extracts the current logged-in user from the request.

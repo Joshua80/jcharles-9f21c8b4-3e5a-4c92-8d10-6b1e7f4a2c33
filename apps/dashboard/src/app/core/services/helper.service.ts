@@ -35,11 +35,15 @@ export class HelperService {
         return null;
       }
     } catch (error) {
-      console.error('Error reading localStorage:', error);
-
-      localStorage.clear();
+      // Silently handle localStorage errors in production
+      if (typeof window !== 'undefined' && window.localStorage) {
+        try {
+          localStorage.clear();
+        } catch (clearError) {
+          // Ignore clear errors
+        }
+      }
       this._router.navigate(['/login']);
-
       return null;
     }
   }
@@ -60,7 +64,7 @@ export class HelperService {
 
       return JSON.parse(decryptedText);
     } catch (error: any) {
-      console.error('Decryption failed:', error.message || error);
+      // Return null on decryption failure - don't log sensitive errors in production
       return null;
     }
   }
@@ -84,7 +88,7 @@ export class HelperService {
       ).toString();
       sessionStorage.setItem(key, encryptedData);
     } catch (error) {
-      console.error('Session encryption failed', error);
+      // Silently handle encryption errors
     }
   }
 
@@ -100,7 +104,7 @@ export class HelperService {
       );
       return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
     } catch (error) {
-      console.error('Session decryption failed', error);
+      // Return null on decryption failure
       return null;
     }
   }
@@ -123,10 +127,6 @@ export class HelperService {
   }
 
   public handleAuthError(err: any): any {
-    console.log(err);
-
-    console.error('Error Response:', err.error);
-
     const errorMessage = err?.error?.message || 'Something went wrong.';
 
     switch (err.status) {

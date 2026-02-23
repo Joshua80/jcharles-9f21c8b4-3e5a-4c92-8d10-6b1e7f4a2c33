@@ -7,12 +7,12 @@ import {CommonConstants} from "../constants/common-constants";
  * @param input
  * @returns
  */
-export function encryptData(input: any) {
+export function encryptData(input: any): string | undefined {
     try {
         return CryptoJS.AES.encrypt(JSON.stringify(input), CommonConstants.encryptSecretKey).toString();
     } catch (e) {
-      console.log(e)
-      return;
+      // Return undefined on encryption failure
+      return undefined;
     }
 }
 
@@ -21,15 +21,15 @@ export function encryptData(input: any) {
  * @param input
  * @returns
  */
-export function decryptData(input: any) {
+export function decryptData(input: any): any {
     try {
         const bytes = CryptoJS.AES.decrypt(input, CommonConstants.encryptSecretKey);
-        if (bytes.toString())
+        if (bytes.toString()) {
             return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-
+        }
         return input;
     } catch (e) {
-      console.log(e);
-        return true
+      // Return input as-is on decryption failure
+        return input;
     }
 }

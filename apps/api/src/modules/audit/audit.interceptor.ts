@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Observable, tap } from 'rxjs';
 import { AuditService } from './audit.service';
-import type { UserPayload } from '../../common/interfaces/user-payload.interface';
+import type { UserPayload } from '@shared/data';
 
 @Injectable()
 export class AuditInterceptor implements NestInterceptor {

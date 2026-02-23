@@ -2,8 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './user.entity';
-import { RoleType } from '../../common/enums/role.enum';
-import type { UserPayload } from '../../common/interfaces/user-payload.interface';
+import { RoleType, UserPayload } from '@shared/data';
 
 @Injectable()
 export class UsersService {

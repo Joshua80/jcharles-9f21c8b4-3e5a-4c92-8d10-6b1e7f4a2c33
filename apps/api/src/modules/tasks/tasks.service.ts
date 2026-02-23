@@ -7,7 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Task } from './task.entity';
 import { User } from '../users/user.entity';
-import { RoleType, UserPayload } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data';
+import { RoleType, UserPayload } from '@shared/data';
 import { CreateTaskDto, UpdateTaskDto, ListTaskDto } from './dto/task.dto';
 import { TaskResponseDto } from './dto/task-response.dto';
 import { AuditService } from '../audit/audit.service';

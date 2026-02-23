@@ -40,7 +40,8 @@ export class ApiService {
       this.appConfig = data;
       this.apiUrls = this.appConfig.apiUrls || this.apiUrls;
     } catch (error) {
-      console.error('Error loading config:', error);
+      // Config loading failed - use default URLs
+      // In production, consider logging to a monitoring service
     }
   }
 
@@ -77,17 +78,13 @@ export class ApiService {
       return requestFn(baseUrl).pipe(
         timeout(timeoutMs),
         catchError((error) => {
-          if (error instanceof TimeoutError) {
-            console.warn(`Timeout at ${baseUrl}`);
-          }
-
           const nextIndex = urlIndex + 1;
 
           if (nextIndex >= this.apiUrls.length) {
             return throwError(() => error);
           }
 
-          console.warn('Switching to backup API...');
+          // Silently retry with next URL
           return attempt(nextIndex);
         }),
       );
@@ -151,8 +148,6 @@ export class ApiService {
   }
 
   get<T>(endpoint: string, options?: any): Observable<T> {
-    console.log(this.makeRequest<T>('GET', endpoint, null, options));
-
     return this.makeRequest<T>('GET', endpoint, null, options);
   }
 

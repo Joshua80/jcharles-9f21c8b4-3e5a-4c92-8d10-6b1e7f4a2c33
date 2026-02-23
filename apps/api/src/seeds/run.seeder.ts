@@ -1,23 +1,25 @@
 import { NestFactory } from '@nestjs/core';
-import { SeederModule } from '../seeder/seeder.module'; // Import the specific module
+import { Logger } from '@nestjs/common';
+import { SeederModule } from '../seeder/seeder.module';
 import { SeederService } from './seeder.service';
 
 async function bootstrap() {
-  // Use SeederModule here instead of AppModule to avoid loading the whole API
-  const app = await NestFactory.createApplicationContext(SeederModule);
-
-  const seeder = app.get(SeederService);
+  const logger = new Logger('SeederBootstrap');
 
   try {
-    console.log('Starting seeding process...');
+    // Use SeederModule here instead of AppModule to avoid loading the whole API
+    const app = await NestFactory.createApplicationContext(SeederModule);
+    const seeder = app.get(SeederService);
+
+    logger.log('Starting seeding process...');
     await seeder.seed();
-    console.log('Seeding finished successfully.');
-  } catch (err) {
-    console.error('Seeder failed', err);
-    process.exit(1);
-  } finally {
+    logger.log('Seeding finished successfully.');
+
     await app.close();
-    process.exit(0); // Explicitly kill the process so Nx knows it's done
+    process.exit(0);
+  } catch (err) {
+    logger.error('Seeder failed', err instanceof Error ? err.stack : err);
+    process.exit(1);
   }
 }
 

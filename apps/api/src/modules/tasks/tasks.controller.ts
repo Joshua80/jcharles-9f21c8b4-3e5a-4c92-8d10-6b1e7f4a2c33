@@ -1,8 +1,8 @@
 import { Controller, Get, Post, Patch, Delete, Param, Body, Query, UseGuards } from '@nestjs/common';
 import { TasksService } from './tasks.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
-import { RolesGuard, Roles, GetUser } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/auth';
-import { RoleType, UserPayload } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data';
+import { RolesGuard, Roles, GetUser } from '@shared/auth';
+import { RoleType, UserPayload } from '@shared/data';
 import { CreateTaskDto, UpdateTaskDto, ListTaskDto, ReorderTasksDto } from './dto/task.dto';
 import {
   ApiTags,

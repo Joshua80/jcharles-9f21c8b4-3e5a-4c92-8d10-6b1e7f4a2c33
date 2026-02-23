@@ -1,6 +1,6 @@
 import { IsString, MinLength, IsOptional, IsEnum, IsUUID, IsInt, Min, IsArray, ValidateNested } from 'class-validator';
 import { PartialType } from '@nestjs/mapped-types';
-import { TaskStatus } from '@hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/data';
+import { TaskStatus } from '@shared/data';
 import { Type } from 'class-transformer';
 import { ApiPropertyOptional, ApiProperty } from '@nestjs/swagger';
 

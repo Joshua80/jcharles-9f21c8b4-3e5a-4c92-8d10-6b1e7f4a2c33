@@ -101,24 +101,36 @@ Viewer1: viewer1@example.com / 123456
 
 ### Step 5: Start the Application
 
-#### Option A: Quick Start (Windows) - Recommended
+#### Option A: Cross-Platform Quick Start (Recommended)
 
-**Double-click `run-project.bat`** or run from command line:
+**Use npm scripts** (works on Windows, macOS, and Linux):
 
 ```bash
-run-project.bat
+npm start
 ```
 
-This batch file will:
+Or use the shell script (macOS/Linux):
+```bash
+./run-project.sh
+```
+
+This will:
 - ✅ Check if dependencies are installed (runs `npm install` if needed)
 - ✅ Create `.env` file from sample if missing
 - ✅ Free up ports 3000 and 4200 if they're in use
-- ✅ Start both API and Dashboard servers in separate windows
+- ✅ Seed the database with initial data
+- ✅ Start both API and Dashboard servers
 - ✅ Display server URLs
 
 **To stop the servers:**
-- Close the server windows, or
-- Run `stop-project.bat` to kill all processes on ports 3000 and 4200
+```bash
+npm run stop
+```
+
+Or use the shell script (macOS/Linux):
+```bash
+./stop-project.sh
+```
 
 ---
 
@@ -308,7 +320,7 @@ The SQLite file is stored at `apps/api/database/database.sqlite`.
 This project follows a modular NX monorepo structure:
 
 ```
-hnamdev-7f3a1b92-6d4e-4c8a-9b5f-2e1a3c7d8e90/
+jcharles-9f21c8b4-3e5a-4c92-8d10-6b1e7f4a2c33/
 ├── apps/
 │   ├── api/              # NestJS backend application
 │   └── dashboard/        # Angular frontend application
